@@ -2,7 +2,7 @@
 This script will give you the completion percentage of a running time machine backup (OS X only), difference since the last update, and average change.
 
 #Installation
-copy tmpct.sh to a local directory
+copy tmpct.sh to a local directory. Make sure tmutil is running by typing "tmutil status"
 
 run the following command to set it up:
 
