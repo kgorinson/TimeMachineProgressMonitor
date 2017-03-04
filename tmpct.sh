@@ -6,7 +6,8 @@ cat ./tmscript/tm.txt > ./tmscript/old.txt
 cat ./tmscript/mb.txt > ./tmscript/mbold.txt
 
 echo "The time between runs is $1 seconds"
-
+printf "Total number of iterations is "
+wc -l tmscript/avg.txt | awk '{print $1}'
 tmutil status | awk '/_raw_Percent/ {print $3}' | grep -o '[0-9].[0-9]\+' | awk '{print $1*100}' > ./tmscript/tm.txt
 printf "The new percentage is " 
 cat ./tmscript/tm.txt
@@ -16,11 +17,11 @@ paste ./tmscript/tm.txt ./tmscript/old.txt | awk '{print $1 - $2}' >> ./tmscript
 tail -1 ./tmscript/avg.txt
 awk '{s+=$1} END {print "Average: " s/NR}' ./tmscript/avg.txt
 
-printf "MBs transferred: "
-tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1048576" | bc > ./tmscript/mb.txt
+printf "KBs transferred: "
+tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc > ./tmscript/mb.txt
 paste ./tmscript/mb.txt ./tmscript/mbold.txt | awk '{print $1 - $2}' >> ./tmscript/avgmb.txt
 tail -1 ./tmscript/avgmb.txt
-awk '{s+=$1} END {print "Average MB transferred: " s/NR}' ./tmscript/avgmb.txt
+awk '{s+=$1} END {print "Average KB transferred: " s/NR}' ./tmscript/avgmb.txt
 
 if [ "$2" == "yes" ] ; then
 	sed -i '.bak' '/.*/d' tmscript/avg.txt
