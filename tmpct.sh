@@ -24,7 +24,7 @@ printf "New KBs transferred: "
 tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc > ./tmscript/mb.txt
 paste ./tmscript/mb.txt ./tmscript/mbold.txt | awk '{print $1 - $2}' >> ./tmscript/avgmb.txt
 tail -1 ./tmscript/avgmb.txt
-awk '{s+=$1} END {print "Average KB transferred: " s/NR}' ./tmscript/avgmb.txt
+awk '{s+=$1} END {print "Avg KB transferred b/w runs: " s/NR}' ./tmscript/avgmb.txt
 
 if [ "$2" == "yes" ] ; then
 	sed -i '.bak' '/.*/d' tmscript/avg.txt
