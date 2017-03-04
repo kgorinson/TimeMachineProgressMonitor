@@ -14,13 +14,11 @@ this updates every 5 seconds.
 
 #Output
 
------------------
 The new percentage is [total percent completion]
 The difference is [difference between now and last iteration]
 Average: [average change]
 
 ex.
------------------
 The new percentage is 7.458
 The difference is 0.03337
 Average: 1.8645
