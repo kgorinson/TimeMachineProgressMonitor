@@ -4,9 +4,7 @@ This script will give you the completion percentage of a running time machine ba
 #Installation
 copy tmpct.sh to a local directory
 
-run the following commands to set it up:
-
-"mkdir tmscript"
+run the following command to set it up:
 
 "chmod +x tmpct.sh"
 
