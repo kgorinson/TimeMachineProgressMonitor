@@ -17,6 +17,13 @@ ex. ./tmpct 5 MB
 
 this updates every 5 seconds and uses Megabytes as the units. (KB will use Kilobytes).
 
+#A note from the author
+If this script has helped you, please consider donating. My Bitcoin address is:
+1EqMpMfvRir7rquyHCgMUSXkZifPuLz6Et
+
+I'm a 24 year old professional just out of college who is saving to buy a home, with the intention of turning it into cat heaven. I love cats and actively volunteer at BARCS in Baltimore. You can see my YouTube channel here:
+https://www.youtube.com/channel/UCxq91FzrkZYaFB7t7XlPczQ
+
 #Output
 
 ```
