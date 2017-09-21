@@ -1,37 +1,82 @@
+#usage: ./tmpct.sh <sleep time in seconds> KB|MB
+rm -rf tmscript
 mkdir -p tmscript
 touch ./tmscript/avg.txt
 touch ./tmscript/avgmb.txt
-
-cat ./tmscript/tm.txt > ./tmscript/old.txt
-cat ./tmscript/mb.txt > ./tmscript/mbold.txt
+counter=0
 
 echo "The time between runs is $1 seconds"
-printf "Total number of iterations is "
-wc -l tmscript/avg.txt | awk '{print $1}'
-tmutil status | awk '/_raw_Percent/ {print $3}' | grep -o '[0-9].[0-9]\+' | awk '{print $1*100}' > ./tmscript/tm.txt
-printf "\nThe new percentage is " 
-cat ./tmscript/tm.txt
+iterations=$(wc -l tmscript/avg.txt | awk '{print $1}' | bc)
 
-printf "The difference is "
-paste ./tmscript/tm.txt ./tmscript/old.txt | awk '{print $1 - $2}' >> ./tmscript/avg.txt
-tail -1 ./tmscript/avg.txt
-awk '{s+=$1} END {print "Average: " s/NR}' ./tmscript/avg.txt
+while true;
+    do
 
-printf "\nTotal KBs transferred: "
-tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc
 
-printf "New KBs transferred: "
-tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc > ./tmscript/mb.txt
-paste ./tmscript/mb.txt ./tmscript/mbold.txt | awk '{print $1 - $2}' >> ./tmscript/avgmb.txt
-tail -1 ./tmscript/avgmb.txt
-awk '{s+=$1} END {print "Avg KB transferred b/w runs: " s/NR}' ./tmscript/avgmb.txt
+    iterations=$(wc -l tmscript/avg.txt | awk '{print $1}' | bc)
+    fixediter=$(($iterations + 1))
+    echo "Total number of iterations is" $fixediter "and the time between is" $1 "seconds."
 
-if [ "$2" == "yes" ] ; then
-	sed -i '.bak' '/.*/d' tmscript/avg.txt
-	sed -i '.bak' '/.*/d' tmscript/avgmb.txt
-	echo "The first line has been deleted"
-	echo "In the averages files"
-fi
-echo "-----------------"
-sleep $1
-exec ./tmpct.sh $1
+	cat ./tmscript/tm.txt > ./tmscript/old.txt
+	cat ./tmscript/mb.txt > ./tmscript/mbold.txt
+
+	tmutil status | awk '/_raw_Percent/ {print $3}' | grep -o '[0-9].[0-9]\+' | awk '{print $1*100}' > ./tmscript/tm.txt
+	printf "The new percentage is " 
+	cat ./tmscript/tm.txt
+
+    if [ "$counter" -gt "0" ] ; then
+		printf "The difference is "
+		paste ./tmscript/tm.txt ./tmscript/old.txt | awk '{print $1 - $2}' >> ./tmscript/avg.txt
+		tail -1 ./tmscript/avg.txt
+		awk '{s+=$1} END {print "Average Difference: " s/NR}' ./tmscript/avg.txt
+	else
+		echo "0" >> ./tmscript.avg.txt
+    fi
+        if [ $2 == "MB" ]; then
+
+	transferMB=$(tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytestotal.txt && echo "$(cat ./tmscript/bytestotal.txt)/1048576" | bc)
+	newtransferMB=$(tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1048576" | bc)
+	tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1048576" | bc > ./tmscript/mb.txt
+	    if [ "$counter" -gt "0" ] ; then
+		paste ./tmscript/mb.txt ./tmscript/mbold.txt | awk '{print $1 - $2}' >> ./tmscript/avgmb.txt
+		newtransfervar=$(tail -1 ./tmscript/avgmb.txt)
+		echo "New MBs transferred: " $newtransfervar
+
+		awk '{s+=$1} END {print "" s/NR}' ./tmscript/avgmb.txt > ./tmscript/avgmb_num.txt
+                echo "Total MBs transferred: " $transferMB
+                printf "Avg MB transferred b/w runs: "
+
+		cat ./tmscript/avgmb_num.txt
+	    fi
+        else
+       	transferKB=$(tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytestotal.txt && echo "$(cat ./tmscript/bytestotal.txt)/1024" | bc)
+
+	newtransferKB=$(tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc )
+	tmutil status | grep bytes | awk '{print $3}' | sed 's/.$//'> ./tmscript/bytes.txt && echo "$(cat ./tmscript/bytes.txt)/1024" | bc > ./tmscript/mb.txt
+	if [ "$counter" -gt "0" ] ; then
+		paste ./tmscript/mb.txt ./tmscript/mbold.txt | awk '{print $1 - $2}' >> ./tmscript/avgmb.txt
+		newtransfervar=$(tail -1 ./tmscript/avgmb.txt)
+                echo "New KBs transferred: " $newtransfervar
+
+                #awk '{s+=$1} END {print "Avg KB transferred b/w runs: " s/NR}' ./tmscript/avgmb.txt
+		awk '{s+=$1} END {print "" s/NR}' ./tmscript/avgmb.txt > ./tmscript/avgmb_num.txt
+		echo "Total KBs transferred: " $transferKB
+                printf "Avg KB transferred b/w runs: "
+
+		cat ./tmscript/avgmb_num.txt
+	fi
+
+        fi
+
+    (( counter++ ))
+
+#	if [ "$2" == "yes" ] ; then
+#		sed -i '.bak' '/.*/d' tmscript/avg.txt
+#		sed -i '.bak' '/.*/d' tmscript/avgmb.txt
+#		echo "The first line has been deleted"
+#		echo "In the averages files"
+#	fi
+	echo "-----------------"
+	echo ""
+	sleep $1
+
+done
